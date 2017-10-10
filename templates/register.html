@@ -1,0 +1,68 @@
+{% load static %}
+
+<style>
+    div.custom-avatar {
+        position: relative;
+        width: 60px;
+        height: 60px;
+    }
+
+    .sol {
+        position: absolute;
+        top: 0;
+        left: 50px;
+        width: 60px;
+        height: 60px;
+    }
+
+    div.custom-avatar input {
+        opacity: 0;
+    }
+
+</style>
+
+<form>
+    <p><label for="username">用户名：</label></p>
+    <p><input type="text" id="username" name="username"></p>
+    <div class="custom-avatar">
+        <label for="avatar">头像：</label>
+        <img src="{% static 'img/default.jpg' %}" id="avatar" class="sol">
+        <input type="file" id="file-choose" class="sol">
+    </div>
+    <p><button>提交</button></p>
+</form>
+
+<script>
+    //头像预览
+    var fileChoose = document.getElementById("file-choose");
+
+    fileChoose.onchange = function() {
+        var file = this.files[0]; //files[0] 通过DOM对象拿到文件对象；如果是使用jQuery: $(this)[0].files[0], 要通过$(this)[0] 索引，先从JQ对象集合中拿到DOM对象
+        var reader = new FileReader(); //实例化FileReader
+        reader.readAsDataURL(file); //将文件对象转化为路径对象
+
+        reader.onload = function () { //FileReader.onload 属性
+            var imgEle = document.getElementById("avatar");
+            imgEle.src = this.result //这里的this指reader对象
+        }
+    };
+
+    //上传图片，这里选择通过Ajax提交
+    var form = document.getElementsByTagName('form')[0];
+    form.onsubmit = function (e) {
+        e.preventDefault(); //阻止默认提交
+        var username = document.getElementById('username').value;
+        var fileObject = document.getElementById("file-choose").files[0];  //拿到图片文件对象
+
+        //实例化FormData对象，添加数据 data.append(key, value)
+        var data = new FormData();
+        data.append('username', username);
+        data.append('img', fileObject);
+
+        //XMLHttpRequest对象发送Ajax请求
+        var url = '/register/';
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open('POST', url, true);
+        xmlHttp.send(data);
+    }
+</script>
